@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>A triangle 3</title>
+		<style>
+			body {background-color: cyan;}
+			canvas {background-color: white;}
+		</style>
+		<script src="gl-matrix-min.js"></script>
+		<script id="shader-vs" type="x-shader/x-vertex">
+			attribute vec3 aVertexPosition;
+			attribute vec3 aVertexColor;
+			
+			uniform mat4 uMVMatrix;
+			uniform mat4 uPMatrix;
+			varying highp vec4 vColor;
+
+			//window.onload = setupWebGL;
+			void main(void){
+				gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+				vColor = vec4(aVertexColor, 1.0);
+			}
+				
+		</script>
+		<script id="shader-fs" type="x-shader/x-fragment">
+			varying highp vec4 vColor;
+			void main(void){
+				gl_FragColor = vColor;
+			}
+		</script>
+		<script type="text/javascript">
+			var gl = null, 
+			canvas = null, 
+			glProgram = null,
+			fragmentShader = null,
+			vartexShader = null;
+			var vertexPositionAttribute = null,
+				triangleVerticeBuffer = null,
+				vertexColorAttribute = null,
+				triangleColorBuffer = null,
+				triangleVetricesIndexBuffer;
+			var angle = 0.0;
+			var mvMatrix = mat4.create(),
+				pMatrix = mat4.create();
+
+			function initWebGL(){
+				canvas = document.getElementById("my-canvas");
+				try{
+					gl = canvas.getContext("webgl");
+				}catch(e){
+
+				}
+				if (gl) {
+					initShaders();
+					setupBuffers();
+					getMatrixUniforms();
+					(function animLoop(){
+						setupWebGL();
+						//setupDynamicBuffers();
+						setMatrixUniforms();
+						drawScene();
+						requestAnimationFrame(animLoop, canvas);
+					})();
+				}else{
+					alert("ERROR: Your browser does not appear to support WebGL.");
+				}
+			}
+			function setupWebGL()
+			{
+				gl.clearColor(0.1, 0.5, 0.1, 1.0);
+				gl.clear(gl.COLOR_BUFFER_BIT);
+				gl.viewport(0, 0, canvas.width, canvas.height);
+				mat4.perspective(45, canvas.width / canvas.height, 0.1, 100.0, pMatrix);
+				mat4.identity(mvMatrix);
+				mat4.translate(mvMatrix, [-1.0, -1.0, -7.0]);
+				mat4.rotate(mvMatrix, angle, [0.0, 1.0, 0.0]);
+				angle += 0.01;
+			}
+			function initShaders() {
+				var fs_source = document.getElementById('shader-fs').innerHTML,
+				vs_source = document.getElementById('shader-vs').innerHTML;
+
+				vertexShader = makeShader(vs_source, gl.VERTEX_SHADER);
+				fragmentShader = makeShader(fs_source, gl.FRAGMENT_SHADER);
+
+				glProgram = gl.createProgram();
+
+				gl.attachShader(glProgram, vertexShader);
+				gl.attachShader(glProgram, fragmentShader);
+				gl.linkProgram(glProgram);
+				if (!gl.getProgramParameter(glProgram, gl.LINK_STATUS)) {
+					alert("Unable to initialize the shader program")
+				}
+				gl.useProgram(glProgram);
+			}
+			function makeShader(src, type){
+				var shader = gl.createShader(type);
+				gl.shaderSource(shader, src);
+				gl.compileShader(shader);
+				if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+					alert("ERROR Compiling shader: "+ gl.getShaderInfolog(shader));
+				}
+				return shader;
+			}
+
+			function setupBuffers() {
+				var triangleVerticeColors = [
+					0.0, 0.0, 1.0,
+					1.0, 1.0, 1.0,
+					0.0, 0.0, 1.0,
+					0.0, 0.0, 1.0,
+					0.0, 0.0, 1.0,
+					1.0, 1.0, 1.0,
+					//right triangle
+					0.0, 1.0, 1.0,
+					1.0, 1.0, 1.0,
+					0.0, 1.0, 1.0,
+					0.0, 1.0, 1.0,
+					0.0, 1.0, 1.0,
+					1.0, 1.0, 1.0,
+
+					0.0, 1.0, 1.0,
+					1.0, 1.0, 1.0,
+					0.0, 1.0, 1.0,
+					0.0, 1.0, 1.0,
+					0.0, 1.0, 1.0,
+					1.0, 1.0, 1.0,
+
+					0.0, 1.0, 1.0,
+					1.0, 1.0, 1.0,
+					0.0, 1.0, 1.0,
+					0.0, 1.0, 1.0,
+					0.0, 1.0, 1.0,
+					1.0, 1.0, 1.0,
+
+					0.0, 1.0, 1.0,
+					1.0, 1.0, 1.0,
+					0.0, 1.0, 1.0,
+					0.0, 1.0, 1.0,
+					0.0, 1.0, 1.0,
+					1.0, 1.0, 1.0,
+
+					0.0, 1.0, 1.0,
+					1.0, 1.0, 1.0,
+					0.0, 1.0, 1.0,
+					0.0, 1.0, 1.0,
+					0.0, 1.0, 1.0,
+					1.0, 1.0, 1.0
+				];
+				triangleColorBuffer = gl.createBuffer();
+				gl.bindBuffer(gl.ARRAY_BUFFER, triangleColorBuffer);
+				gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVerticeColors), gl.STATIC_DRAW);
+
+				var triangleVertices = [
+				//left triangle
+					 0.0,0.0,0.0,
+					 0.5,0.0,0.0,
+					 0.5,0.5,0.0,
+					 0.0,0.5,0.0,
+
+					 0.5,0.0,0.0,
+					 1.0,0.0,0.0,
+					 1.0,0.5,0.0,
+					 0.5,0.5,0.0,
+
+					 1.0,0.0,0.0,
+					 1.5,0.0,0.0,
+					 1.5,0.5,0.0,
+					 1.0,0.5,0.0,
+
+					 1.5,0.0,0.0,
+					 2.0,0.0,0.0,
+					 2.0,0.5,0.0,
+					 1.5,0.5,0.0,
+
+					 3.0,0.0,0.0,
+					 3.5,0.0,0.0,
+					 3.5,0.5,0.0,
+					 3.0,0.5,0.0,
+
+					 3.0,0.0,0.0,
+					 3.5,0.0,0.0,
+					 3.5,-0.5,0.0,
+					 3.0,-0.5,0.0,
+
+
+					
+
+				];
+				triangleVerticeBuffer = gl.createBuffer();
+				gl.bindBuffer(gl.ARRAY_BUFFER, triangleVerticeBuffer);
+				gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVertices), gl.STATIC_DRAW);
+				
+				var triangleVetrexIndices = [
+					0,1,2,
+					0,2,3,
+					4,5,6,
+					4,6,7,
+					8,9,10,
+					8,10,11,
+					12,13,14,
+					12,14,15,
+					16,17,18,
+					16,18,19,
+					20,21,22,
+					20,22,23
+					
+				];
+				triangleVetricesIndexBuffer = gl.createBuffer();
+				triangleVetricesIndexBuffer.number_vertex_points = triangleVetrexIndices.length;
+				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, triangleVetricesIndexBuffer);
+				gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(triangleVetrexIndices), gl.STATIC_DRAW);
+			}
+			function drawScene() {
+				vertexPositionAttribute = gl.getAttribLocation(glProgram, "aVertexPosition");
+				gl.enableVertexAttribArray(vertexPositionAttribute);
+				gl.bindBuffer(gl.ARRAY_BUFFER, triangleVerticeBuffer);
+				gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+				
+				vertexColorAttribute = gl.getAttribLocation(glProgram, "aVertexColor");
+				gl.enableVertexAttribArray(vertexColorAttribute);
+				gl.bindBuffer(gl.ARRAY_BUFFER, triangleColorBuffer);
+				gl.vertexAttribPointer(vertexColorAttribute, 3, gl.FLOAT, false, 0, 0);
+
+				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, triangleVetricesIndexBuffer);
+				gl.drawElements(gl.TRIANGLES, triangleVetricesIndexBuffer.number_vertex_points, gl.UNSIGNED_SHORT, 0);
+			}
+			function setupDynamicBuffers(){
+				var x_translation = Math.sin(angle)/2.0;
+
+				var triangleVertices = [
+				//left triangle
+				-0.5  , 0.5, 0.0+ x_translation,
+				0.0 , 0.0, 0.0+ x_translation,
+				-0.5 , -0.5, 0.0+ x_translation,
+				//right triangle
+				0.5 + x_translation, 0.5, 0.0+ x_translation,
+				0.0 + x_translation, 0.0, 0.0+ x_translation,
+				0.5 + x_translation, -0.5, 0.0+ x_translation
+				];
+				angle += 0.01;
+				
+				triangleVerticeBuffer = gl.createBuffer();
+				gl.bindBuffer(gl.ARRAY_BUFFER, triangleVerticeBuffer);
+				gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVertices), gl.DYNAMIC_DRAW);
+			}
+			function getMatrixUniforms(){
+				glProgram.pMatrixUniform = gl.getUniformLocation(glProgram, "uPMatrix");
+				glProgram.mvMatrixUniform = gl.getUniformLocation(glProgram, "uMVMatrix");
+			}
+			function setMatrixUniforms(){
+				gl.uniformMatrix4fv(glProgram.pMatrixUniform, false, pMatrix);
+				gl.uniformMatrix4fv(glProgram.mvMatrixUniform, false, mvMatrix);
+			}
+
+		</script>
+	</head>
+	<body onload="initWebGL()">
+		<h1>CanvasWebGL</h1>
+		<canvas id="my-canvas" width="600" height="400">Your browser does not support the HTML5 canvas element.</canvas>
+		<p id='p1'></p>
+		<footer>
+			<nav>
+					<ul>
+						<li><a href="indexJaskula.html">Strona główna</a></li>
+						<li><a href="GraXY.html">Gra</a></li>
+						<li><a href="Canvas2D.html">Canvas2D</a></li>
+					</ul>
+				</nav>
+		</footer>
+	</body>
+</html>

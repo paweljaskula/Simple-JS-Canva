@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pl">
+	<head>
+		<link rel="stylesheet" href="stylJaskula.css">
+		<meta charset="utf-8">
+		<title> Jaskuła Paweł </title>
+		<script src="skryptJaskula.js"></script>
+		
+
+	</head>
+	<body onload = "Write()">
+		<header id="powitanie"><h1>Strona powitalna</h1></header>
+		<header>
+			<form method ="post">
+				<p id="przywitanie"></p>
+				<fieldset id="personal_information">
+					<legend>Witaj!</legend>
+					<ol>
+					    <li>
+					    	<label id="lab1" for="name">Wpisz swoje imie</label>
+					    	<input type="text" name="name" autofocus id="name">
+					    </li>
+					   
+					    
+
+					    <li>
+					    	<button type="button" onclick="WriteText(); Hide();">Witaj</button>
+					    </li>
+					    <li>
+					    	<p id="napis"></p>
+					    </li>
+					</ol>
+				</fieldset>
+			</form>
+		</header>
+		<footer>
+			<nav>
+					<ul>
+						<li><a href="GraXY.html">Gra</a></li>
+						<li><a href="Canvas2D.html">Canvas2D</a></li>
+						<li><a href="CanvasWebGL.html">CanvasWebGL</a></li>
+					</ul>
+				</nav>
+		</footer>
+	</body>
+</html>

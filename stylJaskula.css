@@ -1,0 +1,47 @@
+body{
+        background-color: cyan;
+      }
+h1{
+	text-align: center;
+}
+fieldset{
+	
+  width: 460px;
+}
+
+fieldset ol{ 
+  list-style: none; 
+  padding:0; 
+  margin:2px; 
+}
+
+fieldset ol li{ 
+  margin:0 0 9px 0; 
+  padding:0; 
+}
+
+fieldset input{
+  display:block;
+}
+section{
+	text-align: center;
+}
+canvas{
+        background-color: white;
+}
+
+table{
+  border:1px solid;
+  margin-left:auto;
+  margin-right:auto;
+}
+td{
+  text-align: center;
+  border:1px solid;
+  width:  60px;
+  height: 60px;
+}
+#gra{
+  float: center;
+  text-align: center;
+}
